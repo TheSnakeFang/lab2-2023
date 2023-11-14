@@ -60,6 +60,51 @@ class InstantiateForallTactic(Tactic):
                     pfs |= set([Proof([Sequent(new_gamma, seq.delta)], seq, which_rule)])
         return pfs
 
+class CertTactic(Tactic):
+    """
+
+    """
+    
+    def __init__(self, ag: Agent, agk: Key, ca: Agent, cak: Key):
+        self._iskey = App(Operator.ISKEY, 2, [ag, agk])
+        self._isca = App(Operator.ISCA, 1, [ca])
+        self._says = App(Operator.SAYS, 2, [ca, self._iskey])
+
+        self._reqs = [
+            Proposition(self._isca),
+            Proposition(self._says)
+        ]
+
+    def apply(self, seq: Sequent) -> set[Proof]:
+        # make sure all of the required assumptions are present
+        if not all(p in seq.gamma for p in self._reqs):
+            return set([])
+        # if the `isKey` formula is already in the sequent's
+        # assumptions, then there is no need to introduce it
+        # again
+        if Proposition(self._iskey) in seq.gamma:
+            return set([])
+        # cutgoal is the formula that we want to prove in the
+        # left premise of the `cut` appliction
+        cutgoal = Sequent(seq.gamma, Proposition(self._isca))
+        pf_isca = get_one_proof(Sequent(seq.gamma, Proposition(self._isca)), RuleTactic(identityRule))
+        pf_says = get_one_proof(Sequent(seq.gamma, Proposition(self._says)), RuleTactic(identityRule))
+
+        pf_cutgoal = Proof([pf_isca, pf_says], cutgoal, signRule)
+    
+        new_gamma = (
+            seq.gamma + 
+            [Proposition(self._iskey)]
+        )
+        newgoal = Sequent(new_gamma, seq.delta)
+        # We need to look at the delta (proof goal) of the given sequent
+        # to determine whether to use the version of `cut` for truth
+        # or affirmation judgements
+        whichRule = cutRule if isinstance(seq.delta, Proposition) else affCutRule
+        # Now put everything together and return the proof
+        return set([Proof([pf_cutgoal, newgoal], seq, whichRule)])
+
+
 class SignTactic(Tactic):
 
     """
@@ -385,14 +430,16 @@ def prove(seq: Sequent) -> Optional[Proof]:
         Optional[Proof]: A closed proof of `seq`, if
             one exists. Otherwise `None`.
     """
-    # P -> Q, P |- Q
-    t = ThenTactic(
-        [
-            RuleTactic(impLeftRule),
-            RuleTactic(identityRule),
-            # RuleTactic(identityRule)
-        ]
-    )
+
+    print("seq: ", sequent_stringify(seq))
+    
+    t = ThenTactic([
+        SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
+        SignTactic(parse('sign((open(#kevinfan, <kevinfan.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        RuleTactic(identityRule)
+    ])
+    print("tactic,", t)
     return get_one_proof(seq, t)
 
 if __name__ == '__main__':
