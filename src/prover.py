@@ -66,6 +66,7 @@ class CertTactic(Tactic):
     """
     
     def __init__(self, ag: Agent, agk: Key, ca: Agent, cak: Key):
+        print("CertTactic: ", ag, agk, ca, cak)
         self._iskey = App(Operator.ISKEY, 2, [ag, agk])
         self._isca = App(Operator.ISCA, 1, [ca])
         self._says = App(Operator.SAYS, 2, [ca, self._iskey])
@@ -86,9 +87,9 @@ class CertTactic(Tactic):
             return set([])
         # cutgoal is the formula that we want to prove in the
         # left premise of the `cut` appliction
-        cutgoal = Sequent(seq.gamma, Proposition(self._isca))
+        cutgoal = Sequent(seq.gamma, Proposition(self._iskey))
         pf_isca = get_one_proof(Sequent(seq.gamma, Proposition(self._isca)), RuleTactic(identityRule))
-        pf_says = get_one_proof(Sequent(seq.gamma, Proposition(self._says)), RuleTactic(identityRule))
+        pf_says = get_one_proof(Sequent(seq.gamma, Proposition(self._iskey)), RuleTactic(identityRule))
 
         pf_cutgoal = Proof([pf_isca, pf_says], cutgoal, signRule)
     
@@ -158,6 +159,7 @@ class SignTactic(Tactic):
     """
     
     def __init__(self, cred: Formula, agent: Agent):
+        print("SignTactic: ", fmla_stringify(cred), agent)
         self._cred = cred
         self._ag = agent
         # _says is the formula that we want to introduce in the cut
@@ -435,11 +437,11 @@ def prove(seq: Sequent) -> Optional[Proof]:
     
     t = ThenTactic([
         SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        RuleTactic(identityRule),
         CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
         SignTactic(parse('sign((open(#kevinfan, <kevinfan.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
         RuleTactic(identityRule)
     ])
-    print("tactic,", t)
     return get_one_proof(seq, t)
 
 if __name__ == '__main__':
