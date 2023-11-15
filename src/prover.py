@@ -91,7 +91,7 @@ class CertTactic(Tactic):
         pf_isca = get_one_proof(Sequent(seq.gamma, Proposition(self._isca)), RuleTactic(identityRule))
         pf_says = get_one_proof(Sequent(seq.gamma, Proposition(self._iskey)), RuleTactic(identityRule))
 
-        pf_cutgoal = Proof([pf_isca, pf_says], cutgoal, signRule)
+        pf_cutgoal = Proof([pf_isca, pf_says], cutgoal, certRule)
     
         new_gamma = (
             seq.gamma + 
@@ -437,7 +437,6 @@ def prove(seq: Sequent) -> Optional[Proof]:
     
     t = ThenTactic([
         SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        RuleTactic(identityRule),
         CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
         SignTactic(parse('sign((open(#kevinfan, <kevinfan.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
         RuleTactic(identityRule)
