@@ -465,8 +465,6 @@ def verify_cert(pf: Proof, feedback: bool=True) -> bool:
             print_feedback(pf, f'Cert rule has two premises, got {len(pf.premises)}')
         return False
 
-    # print("pf.premises[1]", pf.premises[1])
-
     gamma0 = pf.premises[0].gamma if isinstance(pf.premises[0], Sequent) else pf.premises[0].conclusion.gamma
     delta0 = pf.premises[0].delta if isinstance(pf.premises[0], Sequent) else pf.premises[0].conclusion.delta
     gamma1 = pf.premises[1].gamma if isinstance(pf.premises[1], Sequent) else pf.premises[1].conclusion.gamma

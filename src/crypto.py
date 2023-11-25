@@ -96,6 +96,7 @@ class Credential():
 		match p:
 			case App(Operator.SIGN, 2, [q, k]):
 				for cert in glob('certs/*.cert'):
+					print(cert)
 					ag = Agent(f'#{cert.split("/")[1].split(".")[0]}')
 					cert = Certificate.load_certificate(ag)
 					if fingerprint(cert.public_key) == k.fingerprint:
@@ -495,6 +496,7 @@ def verify_cert(
 		case App(Operator.ISKEY, 2, [cert.agent, key]):
 			if fingerprint(cert.public_key) != key.fingerprint:
 				return False
+			print('certy:', cert)
 			signing_key = chain[cert.cred.signator].public_key
 			try:
 				signing_key.verify(
@@ -572,10 +574,12 @@ def verify_request(req: AccessRequest, roots: list[Agent]=[]) -> Optional[Creden
 	cert_chain = {cert.agent: cert for cert in req.certs}
 	for cert in req.certs:
 		if not verify_cert(cert, cert_chain, roots):
+			print("cert issue", print(cert))
 			return None
 	# Then verify the signatures on each of the credentials
 	for cred in req.creds:
 		if not cred.verify_signature(cert_chain[cred.signator].public_key):
+			print("cred issue")
 			return None
 
 	# Now check the proof
@@ -600,6 +604,7 @@ def verify_request(req: AccessRequest, roots: list[Agent]=[]) -> Optional[Creden
 
 	# Finally, verify the proof
 	if len(verify(pf, feedback=False)) > 0:
+		print('proof issue')
 		return None
 
 	# If we've gotten this far, everything checks out
