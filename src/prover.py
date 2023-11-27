@@ -469,9 +469,8 @@ def prove(seq: Sequent) -> Optional[Proof]:
         RuleTactic(affRule),
         RuleTactic(identityRule)
     ])
-
-    t3 = ThenTactic([         
-        SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+    '''
+    SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#justinyo'), Key('[d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
         SignTactic(parse('sign(iskey(#mdhamank, [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#mdhamank'), Key('[71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),          
@@ -516,10 +515,65 @@ def prove(seq: Sequent) -> Optional[Proof]:
         InstantiateForallTactic([Agent('#kevinfan')]),
         RuleTactic(impLeftAffRule),
         RuleTactic(identityRule)
+    '''
+
+    t3 = ThenTactic([            
+   SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#justinyo'), Key('[d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
+        SignTactic(parse('sign(iskey(#mdhamank, [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#mdhamank'), Key('[71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),          
+        SignTactic(parse('sign(iskey(#mfredrik, [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#mfredrik'), Key('[d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
+        SignTactic(parse('sign(iskey(#dsduena, [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#dsduena'), Key('[db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
+        SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
+        SignTactic(parse('sign((open(#mfredrik, <secret.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        SignTactic(parse('sign((open(#dsduena, <secret.txt>)), [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47])'), Agent('#mfredrik')),
+        SignTactic(parse('sign((open(#justinyo, <secret.txt>)), [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f])'), Agent('#dsduena')),
+        SignTactic(parse('sign((open(#mdhamank, <secret.txt>)), [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af])'), Agent('#justinyo')), 
+        SignTactic(parse('sign((open(#kevinfan, <secret.txt>)), [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f])'), Agent('#mdhamank')),
+        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        RuleTactic(saysRightRule),
+        RuleTactic(saysLeftRule),
+        RuleTactic(saysLeftRule),
+        InstantiateForallTactic([Agent('#mfredrik')]),
+        InstantiateForallTactic([Resource('<secret.txt>')]),
+        RuleTactic(impLeftAffRule),
+        InstantiateForallTactic([Agent('#dsduena')]),
+        RuleTactic(impLeftAffRule),
+        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        RuleTactic(saysLeftRule),
+        InstantiateForallTactic([Agent('#dsduena')]),
+        InstantiateForallTactic([Resource('<secret.txt>')]),
+        RuleTactic(impLeftAffRule),
+        InstantiateForallTactic([Agent('#justinyo')]),
+        RuleTactic(impLeftAffRule),
+        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        RuleTactic(saysLeftRule),
+        InstantiateForallTactic([Agent('#justinyo')]),
+        InstantiateForallTactic([Resource('<secret.txt>')]),
+        RuleTactic(impLeftAffRule),
+        InstantiateForallTactic([Agent('#mdhamank')]),
+        RuleTactic(impLeftAffRule),
+        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
+        RuleTactic(saysLeftRule),
+        InstantiateForallTactic([Agent('#mdhamank')]),
+        InstantiateForallTactic([Resource('<secret.txt>')]),
+        RuleTactic(impLeftAffRule),
+        InstantiateForallTactic([Agent('#kevinfan')]),
+        RuleTactic(impLeftAffRule),
+        RuleTactic(affRule),
+        RuleTactic(identityRule)
     ])
 
-    #for pf in p1.apply(seq):
-    #    print(stringify(pf, 500, 80, False, None))
+    t4 = RuleTactic(identityRule)
+
+    for pf in t3.apply(seq):
+        print(stringify(pf, 500, None, True))
+        #print("pf", pf.premises)
+        #print(pf.rule)
+        #print(' \n')
     if get_one_proof(seq,t3) != None:
         return get_one_proof(seq,t3)
     elif get_one_proof(seq,t2) != None:
@@ -528,27 +582,12 @@ def prove(seq: Sequent) -> Optional[Proof]:
        return get_one_proof(seq, t)
 
 if __name__ == '__main__':
-    seq = parse('ca(#ca), iskey(#ca, [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((iskey(#mfredrik, [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((iskey(#dsduena, [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((iskey(#mdhamank, [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]), sign((open(#dsduena, <secret.txt>)), [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]), sign((open(#justinyo, <secret.txt>)), [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]), sign((open(#kevinfan, <secret.txt>)), [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]), sign((open(#kevinfan, <shared.txt>)), [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]), sign((open(#kevinfan, <kevinfan.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), sign((open(#mdhamank, <secret.txt>)), [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), sign((open(#mfredrik, <secret.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), sign((open(#mfredrik, <shared.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), sign(((@A . (((#mfredrik says open(A, <shared.txt>)) -> open(A, <shared.txt>))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), sign((open(#siruih, <secret.txt>)), [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]) |- (#mfredrik says open(#dsduena, <secret.txt>))')
-    print(stringify(seq))
-    tx = ThenTactic([         
-        SignTactic(parse('sign(iskey(#mfredrik, [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#mfredrik'), Key('[d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(iskey(#dsduena, [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#dsduena'), Key('[db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        RuleTactic(saysRightRule),
-        RuleTactic(saysLeftRule),
-        SignTactic(parse('sign((open(#mfredrik, <secret.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        SignTactic(parse('sign((open(#dsduena, <secret.txt>)), [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47])'), Agent('#mfredrik')),
-        InstantiateForallTactic([Agent('#mfredrik')]),
-        InstantiateForallTactic([Agent('<secret.txt>')]),
-        RuleTactic(impLeftAffRule),
-        InstantiateForallTactic([Agent('#dsduena')]),
-        RuleTactic(impLeftAffRule),
-        RuleTactic(identityRule)
-    ])
+    seq = parse('#root says open(#kevinfan, <bigsecret.txt>) |- #root says open(#kevinfan, <bigsecret.txt>)')
+    tx = RuleTactic(identityRule)
+
     for pf in tx.apply(seq):
-        print(stringify(pf, 500, None, True, None))
+        print(stringify(pf, 500, None, True))
+    
+    print("X .   \n")
+    print(tx.apply(seq))
     pass

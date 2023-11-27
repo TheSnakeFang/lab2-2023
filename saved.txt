@@ -1,0 +1,5 @@
+Proof(premises=[], conclusion=Sequent(gamma=[Proposition(p=App(op=<Operator.SAYS: 7>, arity=2, args=[Agent(id='#root'), App(op=<Operator.OPEN: 11>, arity=2, args=[Agent(id='#kevinfan'), Resource(id='<bigsecret.txt>')])]))], delta=Proposition(p=App(op=<Operator.SAYS: 7>, arity=2, args=[Agent(id='#root'), App(op=<Operator.OPEN: 11>, arity=2, args=[Agent(id='#kevinfan'), Resource(id='<bigsecret.txt>')])]))), rule=Rule(premises=[], conclusion=Sequent(gamma=[Proposition(
+
+
+
+p=Variable(id='P'))], delta=Proposition(p=Variable(id='P'))), name='id'))
