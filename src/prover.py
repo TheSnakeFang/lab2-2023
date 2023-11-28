@@ -62,11 +62,35 @@ class InstantiateForallTactic(Tactic):
 
 class CertTactic(Tactic):
     """
+    A tactic for incorporating a says(iskey(#x #k)) formula into
+    assumptions as a `iskey(#x, #k)` formula. 
 
+    The premise `T.0` will be a closed proof of
+    `isCA(#ca)` and 'iskey(#x, #k)' if and only if:
+        - The given public key is the correct key #kfor #x is given
+        - The sequent that the tactic is applied to
+          has an ca(#ca) predicate that associates the given #ca 
+          with a recognized certificate authority.
+    The premise `T.1` of the resulting proof will be a
+    sequent (i.e., an open/unclosed premise) with a set
+    of assumptions identical to those in the sequent that
+    the tactic is applied to, but will also include
+    `iskey(#x, #k)`.
+
+    If the two conditions listed above are not true of
+    the sequent that the tactic is applied to, then
+    `apply` returns the empty set.
+
+    The proofs returned by this tactic can be closed by
+    combining with other tactics using `ThenTactic`, or
+    by applying other tactics to `pf.premises[1].conclusion`,
+    (assuming `pf` is the returned proof), which will contain
+    the unfinished sequent with the new `says` in its
+    assumption, and chaining the two proofs together with
+    `chain`.
     """
     
     def __init__(self, ag: Agent, agk: Key, ca: Agent, cak: Key):
-        print("CertTactic: ", ag, agk, ca, cak)
         self._iskey = App(Operator.ISKEY, 2, [ag, agk])
         self._isca = App(Operator.ISCA, 1, [ca])
         self._says = App(Operator.SAYS, 2, [ca, App(Operator.ISKEY, 2, [ag, agk])])
@@ -82,9 +106,6 @@ class CertTactic(Tactic):
         violating_requirements = [p for p in self._reqs if p not in seq.gamma]
 
         if not all(p in seq.gamma for p in self._reqs):
-            print("Cert: not all requirements are in\n", self._reqs)
-            print("CViolating requirements:\n", violating_requirements)
-            print("C:\n", seq.gamma)
             return set([])
         # if the `isKey` formula is already in the sequent's
         # assumptions, then there is no need to introduce it
@@ -165,7 +186,6 @@ class SignTactic(Tactic):
     """
     
     def __init__(self, cred: Formula, agent: Agent):
-        print("SignTactic: ", fmla_stringify(cred), agent)
         self._cred = cred
         self._ag = agent
         # _says is the formula that we want to introduce in the cut
@@ -184,9 +204,6 @@ class SignTactic(Tactic):
         violating_requirements = [p for p in self._reqs if p not in seq.gamma]
 
         if not all(p in seq.gamma for p in self._reqs):
-            print("Sign: not all requirements are in\n", self._reqs)
-            print("SViolating requirements:\n", violating_requirements)
-            print("S:\n", seq.gamma)
             return set([])
         # if the `says` formula is already in the sequent's
         # assumptions, then there is no need to introduce it
@@ -444,15 +461,16 @@ def prove(seq: Sequent) -> Optional[Proof]:
         Optional[Proof]: A closed proof of `seq`, if
             one exists. Otherwise `None`.
     """
-
-    print("seq: ", sequent_stringify(seq))
     
+    # root says open(#kevinfan, <kevinfan.txt>) proof
     t = ThenTactic([
         SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
         SignTactic(parse('sign((open(#kevinfan, <kevinfan.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
         RuleTactic(identityRule)
     ])
+
+    # root says open(#kevinfan, <shared.txt>) proof
     t2 = ThenTactic([
         SignTactic(parse('sign((iskey(#mfredrik, [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47])), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#mfredrik'), Key('[d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
@@ -469,56 +487,10 @@ def prove(seq: Sequent) -> Optional[Proof]:
         RuleTactic(affRule),
         RuleTactic(identityRule)
     ])
-    '''
-    SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#justinyo'), Key('[d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(iskey(#mdhamank, [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#mdhamank'), Key('[71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),          
-        SignTactic(parse('sign(iskey(#mfredrik, [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#mfredrik'), Key('[d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(iskey(#dsduena, [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#dsduena'), Key('[db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign(iskey(#root, [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
-        CertTactic(Agent('#root'), Key('[2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
-        SignTactic(parse('sign((open(#mfredrik, <secret.txt>)), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        SignTactic(parse('sign((open(#dsduena, <secret.txt>)), [d3:c6:2a:1b:63:20:f9:75:fd:1b:ec:fc:ad:19:f1:47])'), Agent('#mfredrik')),
-        SignTactic(parse('sign((open(#justinyo, <secret.txt>)), [db:b2:b9:b7:01:83:9c:3e:7d:ac:c4:87:00:cd:79:2f])'), Agent('#dsduena')),
-        SignTactic(parse('sign((open(#mdhamank, <secret.txt>)), [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af])'), Agent('#justinyo')), 
-        SignTactic(parse('sign((open(#kevinfan, <secret.txt>)), [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f])'), Agent('#mdhamank')),
-        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        RuleTactic(saysRightRule),
-        RuleTactic(saysLeftRule),
-        InstantiateForallTactic([Agent('#mfredrik')]),
-        InstantiateForallTactic([Agent('<secret.txt>')]),
-        RuleTactic(impLeftAffRule),
-        InstantiateForallTactic([Agent('#dsduena')]),
-        RuleTactic(impLeftAffRule),
-        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        RuleTactic(saysLeftRule),
-        InstantiateForallTactic([Agent('#dsduena')]),
-        InstantiateForallTactic([Agent('<secret.txt>')]),
-        RuleTactic(impLeftAffRule),
-        InstantiateForallTactic([Agent('#justinyo')]),
-        RuleTactic(impLeftAffRule),
-        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        RuleTactic(saysLeftRule),
-        InstantiateForallTactic([Agent('#justinyo')]),
-        InstantiateForallTactic([Agent('<secret.txt>')]),
-        RuleTactic(impLeftAffRule),
-        InstantiateForallTactic([Agent('#mdhamank')]),
-        RuleTactic(impLeftAffRule),
-        SignTactic(parse('sign(((@A . ((@R . ((open(A, R) -> (@B . (((A says open(B, R)) -> open(B, R)))))))))), [2b:8f:e8:9b:8b:76:37:a7:3b:7e:85:49:9d:87:7b:3b])'), Agent('#root')),
-        RuleTactic(saysLeftRule),
-        InstantiateForallTactic([Agent('#mdhamank')]),
-        InstantiateForallTactic([Agent('<secret.txt>')]),
-        RuleTactic(impLeftAffRule),
-        InstantiateForallTactic([Agent('#kevinfan')]),
-        RuleTactic(impLeftAffRule),
-        RuleTactic(identityRule)
-    '''
 
+    # root says open(#kevinfan, <secret.txt>) proof
     t3 = ThenTactic([            
-   SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
+        SignTactic(parse('sign(iskey(#justinyo, [d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#justinyo'), Key('[d2:15:e7:01:be:ef:fa:e6:08:ca:6c:bd:90:f4:1b:af]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),
         SignTactic(parse('sign(iskey(#mdhamank, [71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]), [43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f])'), Agent('#ca')),
         CertTactic(Agent('#mdhamank'), Key('[71:14:55:85:b1:59:ae:76:b2:56:4b:36:09:01:f5:3f]'), Agent('#ca'), Key('[43:c9:43:e6:28:37:ec:23:1a:bc:83:c6:eb:87:e8:6f]')),          
@@ -567,14 +539,20 @@ def prove(seq: Sequent) -> Optional[Proof]:
         RuleTactic(identityRule)
     ])
 
-    t4 = RuleTactic(identityRule)
+    # exploit proof:
+    t4 = ThenTactic([
+        SignTactic(parse('sign((iskey(#root, [9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22])), [59:cc:b7:43:a3:4e:1e:0c:30:45:70:eb:cf:4a:7f:d8])'), Agent('#exploiter')),
+        CertTactic(Agent('#root'), Key('[9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22]'), Agent('#exploiter'), Key('[59:cc:b7:43:a3:4e:1e:0c:30:45:70:eb:cf:4a:7f:d8]')),
+        SignTactic(parse('sign((open(#kevinfan, <bigsecret.txt>)), [9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22])'), Agent('#root')),
+        RuleTactic(saysRightRule),
+        RuleTactic(saysLeftRule),
+        RuleTactic(affRule),
+        RuleTactic(identityRule)
+    ])
 
-    for pf in t3.apply(seq):
-        print(stringify(pf, 500, None, True))
-        #print("pf", pf.premises)
-        #print(pf.rule)
-        #print(' \n')
-    if get_one_proof(seq,t3) != None:
+    if get_one_proof(seq,t4) != None:
+        return get_one_proof(seq,t4)
+    elif get_one_proof(seq,t3) != None:
         return get_one_proof(seq,t3)
     elif get_one_proof(seq,t2) != None:
         return get_one_proof(seq,t2)
@@ -587,7 +565,6 @@ if __name__ == '__main__':
 
     for pf in tx.apply(seq):
         print(stringify(pf, 500, None, True))
-    
-    print("X .   \n")
+
     print(tx.apply(seq))
     pass
