@@ -541,14 +541,17 @@ def prove(seq: Sequent) -> Optional[Proof]:
 
     # exploit proof:
     t4 = ThenTactic([
-        SignTactic(parse('sign((iskey(#root, [9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22])), [59:cc:b7:43:a3:4e:1e:0c:30:45:70:eb:cf:4a:7f:d8])'), Agent('#exploiter')),
-        CertTactic(Agent('#root'), Key('[9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22]'), Agent('#exploiter'), Key('[59:cc:b7:43:a3:4e:1e:0c:30:45:70:eb:cf:4a:7f:d8]')),
+        SignTactic(parse('sign((iskey(#root, [9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22])), [e7:5c:3f:40:d3:2c:8b:ea:98:f6:f1:ba:98:53:4e:86])'), Agent('#exploiter')),
+        CertTactic(Agent('#root'), Key('[9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22]'), Agent('#exploiter'), Key('[e7:5c:3f:40:d3:2c:8b:ea:98:f6:f1:ba:98:53:4e:86]')),
         SignTactic(parse('sign((open(#kevinfan, <bigsecret.txt>)), [9e:8e:36:8c:6d:26:1d:e3:65:8e:b5:39:36:ea:c5:22])'), Agent('#root')),
         RuleTactic(saysRightRule),
         RuleTactic(saysLeftRule),
         RuleTactic(affRule),
         RuleTactic(identityRule)
     ])
+
+    #for pf in t4.apply(seq):
+    #    print(stringify(pf, 500, None, False))
 
     if get_one_proof(seq,t4) != None:
         return get_one_proof(seq,t4)

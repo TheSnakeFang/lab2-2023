@@ -26,7 +26,7 @@ from logic import *
 from verifier import verify
 from proofrules import calculus
 from parser import parse, sequent_parse
-from util import stringify
+from util import stringify, get_cas
 
 @dataclass(eq=True, frozen=True)
 class Credential():
@@ -601,6 +601,16 @@ def verify_request(req: AccessRequest, roots: list[Agent]=[]) -> Optional[Creden
 			req.proof.rule), 
 		gamma
 	)
+
+	print(stringify(pf))
+
+	print("XXX\n")
+
+	print(verify(pf, feedback=True))
+
+	print("YYY\n")
+
+	print(stringify(i) for i in (verify(pf, feedback=True)))
 
 	# Finally, verify the proof
 	if len(verify(pf, feedback=False)) > 0:
